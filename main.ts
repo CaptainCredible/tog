@@ -11,8 +11,6 @@ let lightsPin = DigitalPin.P0
 
 input.onButtonPressed(Button.A, function () {
     activateLights()
-
-    lightsOn = true
 })
 
 
@@ -46,10 +44,7 @@ basic.forever(function() {
   if(lightsOn){
       led.plot(0,0)
       if (input.runningTime() > lightsOnTime + lightsOnTimeout) {
-          lightsOn = false
-          pins.digitalWritePin(lightsPin, 1)
-          basic.pause(onDuration)
-          pins.digitalWritePin(lightsPin, 0)
+          activateLights()
       }
   } else {
       led.unplot(0,0)

@@ -6,32 +6,33 @@ let turbineTimeout = 15000 // 15 sec timeout
 let lightsOn= false
 let lightsOnTimeout = 10000
 let lightsOnTime = 0
-let onDuration = 200
+let onDuration = 100
 let lightsPin = DigitalPin.P0
 
 input.onButtonPressed(Button.A, function () {
-    activateLights(1)
+    activateLights()
+
     lightsOn = true
 })
 
 
-function activateLights(onOrOff: number) {
-    pins.digitalWritePin(lightsPin, onOrOff)
+function activateLights() {
+    lightsOn = !lightsOn
+    lightsOnTime = input.runningTime()
+    pins.digitalWritePin(lightsPin, 1)
     led.toggleAll();
     basic.pause(onDuration)
     led.toggleAll();
-    pins.digitalWritePin(lightsPin, onOrOff)
+    pins.digitalWritePin(lightsPin, 0)
 }
 
 radio.onReceivedString(function (receivedString: string) {
     if (receivedString == "Lys på") {
-        activateLights(1)
-        lightsOn= true
+        activateLights()
         lightsOnTime = input.runningTime()
     } else if (receivedString == "Lys av") {
         win()
-        lightsOn = false
-        activateLights(0)
+        activateLights()
     } else if (receivedString == "reset") {
         control.reset()
     }
@@ -43,9 +44,14 @@ function win() {
 
 basic.forever(function() {
   if(lightsOn){
+      led.plot(0,0)
       if (input.runningTime() > lightsOnTime + lightsOnTimeout) {
           lightsOn = false
+          pins.digitalWritePin(lightsPin, 1)
+          basic.pause(onDuration)
           pins.digitalWritePin(lightsPin, 0)
       }
+  } else {
+      led.unplot(0,0)
   }
 })
